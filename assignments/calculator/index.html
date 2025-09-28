@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Máy Tính Cơ Bản</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .calculator {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .display {
+            width: 300px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 20px;
+            font-size: 2rem;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        
+        button {
+            width: 65px;
+            height: 65px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        .operator {
+            background: rgba(255, 165, 0, 0.6);
+        }
+        
+        .operator:hover {
+            background: rgba(255, 165, 0, 0.8);
+        }
+        
+        .equals {
+            background: rgba(34, 193, 195, 0.6);
+            grid-column: span 2;
+            width: 140px;
+        }
+        
+        .equals:hover {
+            background: rgba(34, 193, 195, 0.8);
+        }
+        
+        .clear {
+            background: rgba(231, 76, 60, 0.6);
+        }
+        
+        .clear:hover {
+            background: rgba(231, 76, 60, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display" id="display">0</div>
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">C</button>
+            <button onclick="deleteLast()">⌫</button>
+            <button class="operator" onclick="inputOperator('/')">/</button>
+            <button class="operator" onclick="inputOperator('*')">×</button>
+            
+            <button onclick="inputNumber('7')">7</button>
+            <button onclick="inputNumber('8')">8</button>
+            <button onclick="inputNumber('9')">9</button>
+            <button class="operator" onclick="inputOperator('-')">-</button>
+            
+            <button onclick="inputNumber('4')">4</button>
+            <button onclick="inputNumber('5')">5</button>
+            <button onclick="inputNumber('6')">6</button>
+            <button class="operator" onclick="inputOperator('+')">+</button>
+            
+            <button onclick="inputNumber('1')">1</button>
+            <button onclick="inputNumber('2')">2</button>
+            <button onclick="inputNumber('3')">3</button>
+            <button onclick="inputNumber('0')" style="grid-row: span 2; height: 140px;">0</button>
+            
+            <button onclick="inputNumber('.')">.</button>
+            <button class="equals" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        let currentInput = '0';
+        let operator = '';
+        let previousInput = '';
+        let waitingForNumber = false;
+
+        const display = document.getElementById('display');
+
+        function updateDisplay() {
+            display.textContent = currentInput;
+        }
+
+        function inputNumber(num) {
+            if (waitingForNumber) {
+                currentInput = num;
+                waitingForNumber = false;
+            } else {
+                currentInput = currentInput === '0' ? num : currentInput + num;
+            }
+            updateDisplay();
+        }
+
+        function inputOperator(op) {
+            if (!waitingForNumber) {
+                calculate();
+            }
+            operator = op;
+            previousInput = currentInput;
+            waitingForNumber = true;
+        }
+
+        function calculate() {
+            if (operator && previousInput !== '' && !waitingForNumber) {
+                const prev = parseFloat(previousInput);
+                const current = parseFloat(currentInput);
+                
+                switch (operator) {
+                    case '+':
+                        currentInput = (prev + current).toString();
+                        break;
+                    case '-':
+                        currentInput = (prev - current).toString();
+                        break;
+                    case '*':
+                        currentInput = (prev * current).toString();
+                        break;
+                    case '/':
+                        currentInput = current !== 0 ? (prev / current).toString() : 'Error';
+                        break;
+                }
+                
+                operator = '';
+                previousInput = '';
+                waitingForNumber = true;
+                updateDisplay();
+            }
+        }
+
+        function clearDisplay() {
+            currentInput = '0';
+            operator = '';
+            previousInput = '';
+            waitingForNumber = false;
+            updateDisplay();
+        }
+
+        function deleteLast() {
+            if (currentInput.length > 1) {
+                currentInput = currentInput.slice(0, -1);
+            } else {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            
+            if (key >= '0' && key <= '9' || key === '.') {
+                inputNumber(key);
+            } else if (key === '+' || key === '-' || key === '*' || key === '/') {
+                inputOperator(key);
+            } else if (key === 'Enter' || key === '=') {
+                calculate();
+            } else if (key === 'Escape') {
+                clearDisplay();
+            } else if (key === 'Backspace') {
+                deleteLast();
+            }
+        });
+    </script>
+</body>
+</html>

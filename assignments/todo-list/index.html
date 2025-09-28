@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List - Quản Lý Công Việc</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+        }
+        
+        .input-section {
+            display: flex;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+        
+        #todoInput {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(5px);
+        }
+        
+        #todoInput::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        #addBtn {
+            padding: 15px 25px;
+            background: rgba(34, 193, 195, 0.8);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        #addBtn:hover {
+            background: rgba(34, 193, 195, 1);
+            transform: translateY(-2px);
+        }
+        
+        .filter-section {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn.active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        
+        .todo-list {
+            min-height: 300px;
+        }
+        
+        .todo-item {
+            background: rgba(255, 255, 255, 0.1);
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .todo-item.completed {
+            opacity: 0.6;
+        }
+        
+        .todo-item.completed .todo-text {
+            text-decoration: line-through;
+        }
+        
+        .todo-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .todo-text {
+            flex: 1;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .todo-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .edit-btn, .delete-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .edit-btn {
+            background: rgba(255, 193, 7, 0.8);
+            color: white;
+        }
+        
+        .edit-btn:hover {
+            background: rgba(255, 193, 7, 1);
+        }
+        
+        .delete-btn {
+            background: rgba(220, 53, 69, 0.8);
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background: rgba(220, 53, 69, 1);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            color: white;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 40px;
+            font-size: 18px;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-tasks"></i> Todo List</h1>
+        
+        <div class="input-section">
+            <input type="text" id="todoInput" placeholder="Nhập công việc mới..." maxlength="100">
+            <button id="addBtn"><i class="fas fa-plus"></i> Thêm</button>
+        </div>
+        
+        <div class="filter-section">
+            <button class="filter-btn active" data-filter="all">Tất cả</button>
+            <button class="filter-btn" data-filter="active">Chưa hoàn thành</button>
+            <button class="filter-btn" data-filter="completed">Đã hoàn thành</button>
+        </div>
+        
+        <div class="todo-list" id="todoList">
+            <div class="empty-state">
+                <i class="fas fa-clipboard-list"></i>
+                Chưa có công việc nào. Hãy thêm công việc mới!
+            </div>
+        </div>
+        
+        <div class="stats" id="stats">
+            <span>Tổng: <strong id="totalCount">0</strong></span>
+            <span>Chưa làm: <strong id="activeCount">0</strong></span>
+            <span>Hoàn thành: <strong id="completedCount">0</strong></span>
+        </div>
+    </div>
+
+    <script>
+        class TodoApp {
+            constructor() {
+                this.todos = JSON.parse(localStorage.getItem('todos')) || [];
+                this.currentFilter = 'all';
+                this.initEventListeners();
+                this.render();
+            }
+
+            initEventListeners() {
+                const todoInput = document.getElementById('todoInput');
+                const addBtn = document.getElementById('addBtn');
+                const filterBtns = document.querySelectorAll('.filter-btn');
+
+                addBtn.addEventListener('click', () => this.addTodo());
+                todoInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.addTodo();
+                });
+
+                filterBtns.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        filterBtns.forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentFilter = e.target.dataset.filter;
+                        this.render();
+                    });
+                });
+            }
+
+            addTodo() {
+                const input = document.getElementById('todoInput');
+                const text = input.value.trim();
+
+                if (text === '') return;
+
+                const todo = {
+                    id: Date.now(),
+                    text: text,
+                    completed: false,
+                    createdAt: new Date().toLocaleString('vi-VN')
+                };
+
+                this.todos.unshift(todo);
+                input.value = '';
+                this.saveTodos();
+                this.render();
+            }
+
+            toggleTodo(id) {
+                const todo = this.todos.find(t => t.id === id);
+                if (todo) {
+                    todo.completed = !todo.completed;
+                    this.saveTodos();
+                    this.render();
+                }
+            }
+
+            editTodo(id) {
+                const todo = this.todos.find(t => t.id === id);
+                if (todo) {
+                    const newText = prompt('Chỉnh sửa công việc:', todo.text);
+                    if (newText && newText.trim() !== '') {
+                        todo.text = newText.trim();
+                        this.saveTodos();
+                        this.render();
+                    }
+                }
+            }
+
+            deleteTodo(id) {
+                if (confirm('Bạn có chắc muốn xóa công việc này?')) {
+                    this.todos = this.todos.filter(t => t.id !== id);
+                    this.saveTodos();
+                    this.render();
+                }
+            }
+
+            getFilteredTodos() {
+                switch (this.currentFilter) {
+                    case 'active':
+                        return this.todos.filter(t => !t.completed);
+                    case 'completed':
+                        return this.todos.filter(t => t.completed);
+                    default:
+                        return this.todos;
+                }
+            }
+
+            saveTodos() {
+                localStorage.setItem('todos', JSON.stringify(this.todos));
+            }
+
+            updateStats() {
+                const total = this.todos.length;
+                const active = this.todos.filter(t => !t.completed).length;
+                const completed = this.todos.filter(t => t.completed).length;
+
+                document.getElementById('totalCount').textContent = total;
+                document.getElementById('activeCount').textContent = active;
+                document.getElementById('completedCount').textContent = completed;
+            }
+
+            render() {
+                const todoList = document.getElementById('todoList');
+                const filteredTodos = this.getFilteredTodos();
+
+                if (filteredTodos.length === 0) {
+                    let emptyMessage = 'Chưa có công việc nào.';
+                    if (this.currentFilter === 'active') {
+                        emptyMessage = 'Không có công việc chưa hoàn thành!';
+                    } else if (this.currentFilter === 'completed') {
+                        emptyMessage = 'Chưa có công việc nào được hoàn thành.';
+                    }
+
+                    todoList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard-list"></i>
+                            ${emptyMessage}
+                        </div>
+                    `;
+                } else {
+                    todoList.innerHTML = filteredTodos.map(todo => `
+                        <div class="todo-item ${todo.completed ? 'completed' : ''}">
+                            <input type="checkbox" class="todo-checkbox" 
+                                   ${todo.completed ? 'checked' : ''} 
+                                   onchange="todoApp.toggleTodo(${todo.id})">
+                            <span class="todo-text" title="Tạo lúc: ${todo.createdAt}">${todo.text}</span>
+                            <div class="todo-actions">
+                                <button class="edit-btn" onclick="todoApp.editTodo(${todo.id})" title="Chỉnh sửa">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="delete-btn" onclick="todoApp.deleteTodo(${todo.id})" title="Xóa">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                this.updateStats();
+            }
+        }
+
+        // Khởi tạo ứng dụng
+        const todoApp = new TodoApp();
+    </script>
+</body>
+</html>
